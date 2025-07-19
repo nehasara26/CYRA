@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Abuse Detector</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f5fc;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            padding: 20px;
+        }
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0px 2px 8px rgba(0,0,0,0.1);
+            text-align: center;
+        }
+        h1 {
+            font-size: 1.8rem;
+            color: #333;
+            margin-bottom: 20px;
+        }
+        img {
+            margin: 15px 0;
+            max-width: 100%;
+            border-radius: 10px;
+            border: 1px solid #ddd;
+        }
+        input[type="file"],
+        input[type="text"],
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 1rem;
+        }
+        button, input[type=submit] {
+            width: 100%;
+            padding: 12px;
+            margin-top: 12px;
+            border: none;
+            border-radius: 30px;
+            font-size: 1rem;
+            font-weight: bold;
+            color: #fff;
+            background-color: #6a1b9a;
+            cursor: pointer;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+        }
+        button:hover, input[type=submit]:hover {
+            background-color: #4a148c;
+        }
+        .success { color: green; font-weight: bold; margin-top: 10px; }
+        .error { color: red; font-weight: bold; margin-top: 10px; }
+        hr {
+            margin: 30px 0 20px 0;
+            border: none;
+            border-top: 1px solid #eee;
+        }
+        label {
+            display: block;
+            margin-top: 10px;
+            font-weight: bold;
+            text-align: left;
+        }
+        textarea {
+            width: 100%;
+            border-radius: 8px;
+            padding: 10px;
+            font-size: 0.95rem;
+            margin-top: 5px;
+            resize: none;
+        }
+        .copy-btn {
+            margin-top: 5px;
+            background-color: #0288d1;
+        }
+        .copy-btn:hover {
+            background-color: #01579b;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h1>Image Abuse Detector</h1>
+
+    <!-- Upload Form -->
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="file" name="image">
+        <input type="submit" value="📤 Upload & Generate TinEye Link">
+    </form>
+
+    {% if status_message %}
+        <p class="{% if '✅' in status_message %}success{% else %}error{% endif %}">
+            {{ status_message }}
+        </p>
+    {% endif %}
+
+    {% if uploaded_image_url %}
+        <img src="{{ uploaded_image_url }}" alt="Uploaded Image">
+        <a href="{{ tineye_url }}" target="_blank">
+            <button>🔎 Reverse Image Search</button>
+        </a>
+    {% endif %}
+
+    <hr>
+
+    <!-- Takedown Email -->
+    <h2 style="font-size:1.3rem;margin-bottom:10px;">Generate Takedown Request</h2>
+    <form method="POST">
+        {% csrf_token %}
+        <label>Link where you found the image:</label>
+        <input type="text" name="found_link" placeholder="Paste TinEye result URL here">
+
+        <label>Select a platform:</label>
+        <select name="platform_email">
+            <option value="">--Choose Platform--</option>
+            <option value="support@facebook.com">Facebook</option>
+            <option value="support@instagram.com">Instagram</option>
+            <option value="support@twitter.com">Twitter</option>
+        </select>
+
+        <label>Or enter custom email:</label>
+        <input type="text" name="custom_email" placeholder="custom@example.com">
+
+        <button type="submit">📧 Generate Takedown Request</button>
+    </form>
+
+    {% if takedown_message %}
+        <a href="{{ takedown_message }}" target="_blank">
+            <button style="margin-top:15px;">Open Email App</button>
+        </a>
+
+        <h3 style="margin-top:20px;">📋 Or copy this into your Gmail manually:</h3>
+        <p><strong>Subject:</strong></p>
+        <textarea id="subjectText" readonly rows="2">{{ takedown_subject }}</textarea>
+        <button class="copy-btn" onclick="copyToClipboard('subjectText')">📋 Copy Subject</button>
+
+        <p><strong>Body:</strong></p>
+        <textarea id="bodyText" readonly rows="10">{{ takedown_body }}</textarea>
+        <button class="copy-btn" onclick="copyToClipboard('bodyText')">📋 Copy Body</button>
+    {% endif %}
+</div>
+
+<script>
+function copyToClipboard(elementId) {
+    var copyText = document.getElementById(elementId);
+    copyText.select();
+    copyText.setSelectionRange(0, 99999); // mobile compatibility
+    navigator.clipboard.writeText(copyText.value).then(function() {
+        alert("Copied to clipboard!");
+    }, function() {
+        alert("Failed to copy. Please copy manually.");
+    });
+}
+</script>
+</body>
+</html>
+
