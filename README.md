@@ -1,5 +1,5 @@
 # Cyra 🚨  
-**Cyra** is an intelligent, all-in-one mobile & web app designed to help women proactively safeguard their digital presence and respond quickly during emergencies.
+**Cyra** is an intelligent, all-in-one mobile app designed to help women proactively safeguard their digital presence and respond quickly during emergencies.
 
 ---
 
